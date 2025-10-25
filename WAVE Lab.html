@@ -1,0 +1,3531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WAVE Lab • Weaponized Affective Vulnerability Engineering Trainer</title>
+
+<style>
+  :root {
+    /* Dark blue surfaces */
+    --bg-dark: #0a0f1e;
+    --bg-card: #111827;
+    --bg-card-alt: #1e253a;
+
+    /* Text */
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+
+    /* Accents */
+    --accent: #3b82f6;       /* blue */
+    --danger: #ef4444;       /* red */
+    --purple: #8b5cf6;       /* purple */
+
+    /* UI tokens */
+    --radius-lg: 1rem;
+    --radius-md: .5rem;
+    --border-color: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.12);
+    --shadow-card: 0 24px 48px rgba(0,0,0,.7);
+    --font-stack: system-ui,-apple-system,BlinkMacSystemFont,"Inter",Roboto,"Helvetica Neue",sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-stack);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .app-shell {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 1rem;
+    padding: 1rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 900px) {
+    .app-shell { grid-template-columns: 1fr; }
+  }
+
+  .main-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .header-card {
+    background:
+      radial-gradient(circle at 0% 0%, rgba(59,130,246,.18) 0%, rgba(10,15,30,0) 70%),
+      radial-gradient(circle at 100% 0%, rgba(239,68,68,.12) 0%, rgba(10,15,30,0) 60%),
+      var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: .5rem;
+  }
+
+  .lab-title {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    column-gap: .5rem;
+    color: var(--text-main);
+    margin: 0;
+  }
+
+  .lab-badge {
+    background-color: rgba(59,130,246,.15);
+    border: 1px solid rgba(59,130,246,.4);
+    color: var(--accent);
+    font-size: .7rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: .4rem .5rem;
+    border-radius: var(--radius-md);
+  }
+
+  .lab-desc {
+    color: var(--text-dim);
+    font-size: .85rem;
+    max-width: 900px;
+    margin-top: .5rem;
+  }
+
+  .scenario-picker {
+    display: flex;
+    flex-direction: column;
+    row-gap: .4rem;
+    font-size: .75rem;
+    max-width: 260px;
+  }
+
+  .scenario-label {
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .scenario-select {
+    background-color: var(--bg-card-alt);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: .8rem;
+    line-height: 1.3;
+    padding: .5rem .6rem;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(0,0,0,.6);
+  }
+
+  /* WAVE Theory Card */
+  .wave-theory-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 12px 24px rgba(0,0,0,.4);
+  }
+
+  .wave-theory-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    color: var(--text-main);
+  }
+
+  .wave-principle {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+    color: var(--text-dim);
+  }
+
+  .wave-components {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .wave-component {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.5rem;
+    align-items: start;
+    font-size: 0.75rem;
+  }
+
+  .component-icon {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .component-label {
+    font-weight: 600;
+    color: var(--text-main);
+    grid-column: 2;
+  }
+
+  .component-desc {
+    color: var(--text-dim);
+    grid-column: 2;
+    line-height: 1.4;
+  }
+
+  .sim-card {
+    flex: 1;
+    min-height: 0;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sim-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    row-gap: .5rem;
+  }
+
+  .sim-header-left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .attacker-role {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: .5rem;
+    row-gap: .5rem;
+  }
+
+  .attacker-chip {
+    background-color: rgba(239,68,68,.12);
+    border: 1px solid rgba(239,68,68,.4);
+    color: var(--danger);
+    font-size: .65rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: .35rem .45rem;
+    border-radius: var(--radius-md);
+  }
+
+  .attacker-goal {
+    font-size: .7rem;
+    color: var(--text-dim);
+    margin-top: .25rem;
+    line-height: 1.3;
+  }
+
+  .campaign-phase-label {
+    font-size: .7rem;
+    font-weight: 500;
+    color: var(--accent);
+    background-color: rgba(59,130,246,.12);
+    border: 1px solid rgba(59,130,246,.4);
+    border-radius: .4rem;
+    padding: .25rem .4rem;
+    line-height: 1.2;
+    margin-top: .4rem;
+  }
+
+  .chat-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    row-gap: .75rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.2) rgba(0,0,0,0);
+  }
+
+  .chat-area::-webkit-scrollbar { width: 6px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,.2);
+    border-radius: 999px;
+  }
+
+  .msg-row {
+    display: flex;
+    max-width: 80%;
+  }
+  .msg-row.attacker { justify-content: flex-start; }
+  .msg-row.user     { justify-content: flex-end; margin-left: auto; }
+
+  .bubble {
+    padding: .75rem .9rem .8rem;
+    line-height: 1.4;
+    font-size: .9rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-strong);
+    position: relative;
+    box-shadow: 0 16px 32px rgba(0,0,0,.6);
+    word-break: break-word;
+    white-space: pre-wrap;
+    background-color: var(--bg-card-alt);
+  }
+
+  .msg-row.attacker .bubble {
+    background-color: var(--bg-card-alt);
+    border-color: rgba(239,68,68,.4); /* red tone */
+  }
+
+  .msg-row.user .bubble {
+    background-color: rgba(59,130,246,.1); /* blue tone */
+    border-color: rgba(59,130,246,.4);
+  }
+
+  .bubble-meta {
+    color: var(--text-dim);
+    font-size: .7rem;
+    margin-top: .4rem;
+    display: flex;
+    column-gap: .5rem;
+    flex-wrap: wrap;
+  }
+
+  .bubble-tag {
+    background-color: rgba(239,68,68,.12);
+    border: 1px solid rgba(239,68,68,.4);
+    border-radius: .4rem;
+    font-size: .6rem;
+    line-height: 1;
+    padding: .25rem .35rem;
+    font-weight: 600;
+    color: var(--danger);
+  }
+
+  /* synchronized attack alert */
+  .synchronized-attack-indicator {
+    animation: pulse-danger 2s infinite;
+    background: linear-gradient(45deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1));
+    border: 2px solid rgba(239,68,68,0.6);
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  @keyframes pulse-danger {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+  }
+
+  .input-area {
+    padding: .75rem 1rem;
+    border-top: 1px solid var(--border-color);
+    background-color: rgba(17,24,39,.6);
+    backdrop-filter: blur(8px);
+  }
+
+  .choice-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
+  .choice-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: .6rem .8rem;
+    font-size: .8rem;
+    font-family: inherit;
+    font-weight: 500;
+    background-color: var(--bg-card-alt);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 16px 32px rgba(0,0,0,.6);
+    text-align: left;
+  }
+
+  .choice-btn:hover {
+    background-color: rgba(59,130,246,.12);
+    border-color: rgba(59,130,246,.4);
+    transform: translateY(-1px);
+  }
+
+  .choice-btn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+  }
+
+  .side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .risk-card,
+  .progress-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-card);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: .75rem;
+  }
+
+  .risk-tags {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    font-size: .7rem;
+    color: var(--text-dim);
+  }
+
+  .risk-tag {
+    background-color: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.25);
+    border-radius: .4rem;
+    padding: .4rem .5rem;
+    line-height: 1.3;
+    color: var(--danger);
+    font-weight: 500;
+  }
+
+  .no-risks {
+    font-size: .75rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .pressure-meters {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+  }
+
+  .meter-row {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .meter-label {
+    font-size: .7rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    min-width: 85px;
+  }
+
+  .meter-bar {
+    flex: 1;
+    height: 18px;
+    background-color: rgba(255,255,255,.04);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: var(--accent);
+    transition: width 0.4s ease-out;
+    border-radius: 999px;
+  }
+
+  .meter-fill.belonging { background-color: var(--accent); }
+  .meter-fill.secrecy   { background-color: var(--purple); }
+  .meter-fill.urgency   { background-color: var(--danger); }
+
+  .meter-num {
+    font-size: .65rem;
+    font-weight: 600;
+    color: var(--text-main);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+    font-size: .75rem;
+  }
+
+  .progress-label { color: var(--text-dim); }
+  .progress-frac  { color: var(--text-main); font-weight: 600; }
+
+  .progress-track {
+    height: 8px;
+    background-color: rgba(255,255,255,.04);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    transition: width 0.5s ease-out;
+    border-radius: 999px;
+  }
+
+  /* Inoculation overlay */
+  .inoculation-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(10,15,30,.95);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .inoculation-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .inoculation-content {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: var(--shadow-card);
+  }
+
+  .inoculation-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+  }
+
+  .inoculation-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+  }
+
+  .inoculation-text strong {
+    color: var(--text-main);
+  }
+
+  .inoculation-btn {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 16px 32px rgba(59,130,246,.4);
+  }
+
+  .inoculation-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(59,130,246,.3);
+  }
+
+  /* Consent & Debrief overlays */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(10,15,30,.95);
+    backdrop-filter: blur(16px);
+    display: grid;
+    place-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .overlay-inner {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(59,130,246,.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 100%, rgba(239,68,68,.08) 0%, transparent 50%),
+      var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    max-width: 700px;
+    width: 92%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-card);
+  }
+
+  .overlay-header {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .overlay-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: .5rem;
+  }
+
+  .overlay-subtitle {
+    font-size: .9rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .overlay-body {
+    padding: 1.5rem 2rem 2rem;
+  }
+
+  .consent-intro {
+    background-color: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.3);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .consent-intro h3 {
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0 0 .5rem 0;
+  }
+
+  .consent-intro p {
+    margin: 0;
+    font-size: .85rem;
+    line-height: 1.5;
+    color: var(--text-main);
+  }
+
+  .overlay-ul {
+    margin: 1.5rem 0;
+    padding-left: 1.25rem;
+    font-size: .85rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .overlay-ul li {
+    margin-bottom: .5rem;
+  }
+
+  .overlay-ul strong {
+    color: var(--text-main);
+  }
+
+  .consent-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+  }
+
+  .consent-btn {
+    background-color: var(--accent);
+    color: white;
+    padding: .8rem 2rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: .9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(59,130,246,.3);
+    transition: all 0.2s;
+  }
+
+  .consent-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(59,130,246,.4);
+  }
+
+  .overlay-section {
+    margin-bottom: 1.75rem;
+  }
+
+  .overlay-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .overlay-section-title {
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    column-gap: .5rem;
+  }
+
+  .overlay-kv {
+    font-size: .8rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin-bottom: .5rem;
+  }
+
+  .overlay-kv:last-child {
+    margin-bottom: 0;
+  }
+
+  .overlay-kv strong,
+  .overlay-kv span {
+    color: var(--text-main);
+    font-weight: 600;
+  }
+
+  .debrief-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: .75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .debrief-btn {
+    padding: .7rem 1.25rem;
+    font-size: .85rem;
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .debrief-btn.primary {
+    background-color: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 12px 24px rgba(59,130,246,.3);
+  }
+
+  .debrief-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(59,130,246,.3);
+  }
+
+  .debrief-btn.secondary {
+    background-color: transparent;
+    color: var(--text-main);
+  }
+
+  .debrief-btn.secondary:hover {
+    background-color: rgba(255,255,255,.05);
+  }
+
+  /* footer */
+  footer.legal-disclaimer {
+    width: 100%;
+    max-width: 1400px;
+    margin: 1rem auto 2rem auto;
+    padding: 0 1rem;
+    font-size: .7rem;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <div class="main-col">
+    <div class="header-card">
+      <div class="title-row">
+        <h1 class="lab-title">
+          WAVE Lab
+          <span class="lab-badge">TRAINING MODE</span>
+        </h1>
+        <div class="scenario-picker">
+          <label class="scenario-label">Select Training Scenario:</label>
+          <select id="scenarioSelect" class="scenario-select"></select>
+        </div>
+      </div>
+      <p class="lab-desc">
+        Experience how adversaries use Weaponized Affective Vulnerability Engineering (WAVE) to orchestrate synchronized psychological manipulation. This accelerated simulation shows attack patterns that often unfold over weeks in real life — compressed into minutes so you can see the playbook.
+        <br><br>
+        <strong>Campaign Mode:</strong> Some adversaries don't stop after one contact. They bond, build dependency, and then pivot that emotional leverage into money, data, or access. You'll see that escalation when you choose a campaign sequence.
+      </p>
+    </div>
+
+    <div class="wave-theory-card">
+      <h3 class="wave-theory-title">Understanding WAVE Theory</h3>
+      <p class="wave-principle">
+        <strong>Weaponized Affective Vulnerability Engineering (WAVE)</strong> is the coordinated use of emotional pressure, urgency, belonging, secrecy, guilt, fear, and obligation to steer decisions. The attacker’s goal is to control how you feel so they can control what you do.
+      </p>
+      <div class="wave-components">
+        <div class="wave-component">
+          <span class="component-icon">🧠</span>
+          <span class="component-label">Cognitive Overload</span>
+          <span class="component-desc">Exploit limited working memory with panic, guilt, or flattery so you stop verifying and start reacting.</span>
+        </div>
+        <div class="wave-component">
+          <span class="component-icon">⚡</span>
+          <span class="component-label">Behavioral Resonance</span>
+          <span class="component-desc">Shape your emotional state so harmful actions (sending money, sharing access) feel justified and even noble in the moment.</span>
+        </div>
+        <div class="wave-component">
+          <span class="component-icon">🔄</span>
+          <span class="component-label">Synchronized Manipulation</span>
+          <span class="component-desc">Blend belonging, secrecy, and urgency at the same time — pushing you toward isolation, loyalty, and speed so you can't ask for help.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sim-card">
+      <div class="sim-header">
+        <div class="sim-header-left">
+          <div class="attacker-role">
+            <span>You're chatting with:</span>
+            <span id="attackerName">Dating App Match</span>
+            <span class="attacker-chip">ADVERSARY</span>
+          </div>
+          <div class="attacker-goal" id="attackerGoal">
+            Goal: Build trust through emotional connection
+          </div>
+          <div class="campaign-phase-label" id="campaignPhaseLabel" style="display:none;">
+            Campaign Phase 1/2
+          </div>
+        </div>
+      </div>
+      <div class="chat-area" id="chatArea"></div>
+      <div class="input-area">
+        <div class="choice-btns" id="choiceButtons"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <div class="risk-card">
+      <h3 class="card-title">🚨 Exploitable Behaviors Detected</h3>
+      <div class="risk-tags" id="riskTags">
+        <div class="no-risks">No behaviors logged yet. Stay alert.</div>
+      </div>
+    </div>
+
+    <div class="progress-card">
+      <h3 class="card-title">⚡ Psychological Pressure Levels</h3>
+      <div class="pressure-meters">
+        <div class="meter-row">
+          <div class="meter-label">Belonging</div>
+          <div class="meter-bar">
+            <div class="meter-fill belonging" id="belongingFill"></div>
+          </div>
+          <div class="meter-num" id="belongingNum">0</div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label">Secrecy</div>
+          <div class="meter-bar">
+            <div class="meter-fill secrecy" id="secrecyFill"></div>
+          </div>
+          <div class="meter-num" id="secrecyNum">0</div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label">Urgency</div>
+          <div class="meter-bar">
+            <div class="meter-fill urgency" id="urgencyFill"></div>
+          </div>
+          <div class="meter-num" id="urgencyNum">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-card">
+      <h3 class="card-title">📍 Attack Progress</h3>
+      <div class="progress-info">
+        <span class="progress-label">Step</span>
+        <span class="progress-frac">
+          <span id="stepNum">1</span> / ~10-15
+        </span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Psychological Inoculation Overlay -->
+<div class="inoculation-overlay" id="inoculationOverlay">
+  <div class="inoculation-content">
+    <h2 class="inoculation-title">Psychological Inoculation</h2>
+    <div class="inoculation-text" id="inoculationText"></div>
+    <button class="inoculation-btn" onclick="closeInoculation()">I'm Ready</button>
+  </div>
+</div>
+
+<!-- Consent Overlay -->
+<div class="overlay active" id="consentOverlay">
+  <div class="overlay-inner">
+    <div class="overlay-header">
+      <h2 class="overlay-title">WAVE Lab Training Environment</h2>
+      <p class="overlay-subtitle">
+        Weaponized Affective Vulnerability Engineering Detection & Defense Training
+      </p>
+    </div>
+    <div class="overlay-body">
+      <div class="consent-intro">
+        <h3>⚠️ Psychological Content Warning</h3>
+        <p>
+          This training simulates real manipulation tactics used in cybercrime, fraud, insider recruitment, romance grooming, and blackmail.
+          You’ll see language designed to create panic, shame, guilt, urgency, and secrecy.
+          The point is to learn to spot and break those levers in the real world.
+        </p>
+      </div>
+
+      <ul class="overlay-ul">
+        <li><strong>Accelerated Timeline:</strong> Real adversaries may work you for weeks or months. Here it's compressed for training.</li>
+        <li><strong>WAVE Principles:</strong> You’ll see belonging, secrecy, and urgency used in combination to generate fast compliance.</li>
+        <li><strong>Not Personality Testing:</strong> “Falling for it” here does not mean you're weak. These attacks are industrial. Everyone is targetable.</li>
+        <li><strong>Active Learning:</strong> Making a risky choice here is useful. It shows you exactly where you'd feel pressure in real life.</li>
+        <li><strong>AI-Scaled Threat:</strong> Modern attackers can run thousands of tailored emotional approaches in parallel. You're not up against one scammer. You're up against a system.</li>
+      </ul>
+
+      <div class="consent-actions">
+        <button class="consent-btn" onclick="beginTraining()">
+          Begin WAVE Defense Training
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Debrief Overlay -->
+<div class="overlay" id="debriefOverlay">
+  <div class="overlay-inner">
+    <div class="overlay-header">
+      <h2 class="overlay-title">WAVE Attack Analysis Complete</h2>
+      <p class="overlay-subtitle">
+        Understanding Your Psychological Battle
+      </p>
+    </div>
+    <div class="overlay-body" id="debriefBody">
+      <!-- dynamic -->
+    </div>
+    <div class="debrief-actions">
+      <button class="debrief-btn secondary" onclick="closeDebrief()">
+        Review Transcript
+      </button>
+      <button class="debrief-btn primary" onclick="restartScenario()">
+        Try Again
+      </button>
+      <button class="debrief-btn primary" id="nextPhaseBtn" onclick="advanceCampaignPhase()" style="display:none;">
+        Next Campaign Phase →
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer class="legal-disclaimer">
+  <em>This simulation is for educational and awareness training purposes only. It is not mental health advice.</em>
+</footer>
+
+<script>
+/* =======================
+   State & References
+   ======================= */
+const state = {
+  scenarioKey: "insiderRecruitment",
+  currentNodeId: "start",
+  belongingScore: 0,
+  secrecyScore: 0,
+  urgencyScore: 0,
+  riskTagHistory: [],
+  stepIndex: 1,
+  activeCampaignKey: null,
+  campaignQueue: [],
+  campaignPos: 0
+};
+
+// DOM references
+const scenarioSelectEl      = document.getElementById("scenarioSelect");
+const attackerNameEl        = document.getElementById("attackerName");
+const attackerGoalEl        = document.getElementById("attackerGoal");
+const campaignPhaseLabelEl  = document.getElementById("campaignPhaseLabel");
+const chatAreaEl            = document.getElementById("chatArea");
+const choiceButtonsEl       = document.getElementById("choiceButtons");
+const riskTagsEl            = document.getElementById("riskTags");
+const belongingFillEl       = document.getElementById("belongingFill");
+const belongingNumEl        = document.getElementById("belongingNum");
+const secrecyFillEl         = document.getElementById("secrecyFill");
+const secrecyNumEl          = document.getElementById("secrecyNum");
+const urgencyFillEl         = document.getElementById("urgencyFill");
+const urgencyNumEl          = document.getElementById("urgencyNum");
+const stepNumEl             = document.getElementById("stepNum");
+const progressFillEl        = document.getElementById("progressFill");
+const consentOverlayEl      = document.getElementById("consentOverlay");
+const debriefOverlayEl      = document.getElementById("debriefOverlay");
+const debriefBodyEl         = document.getElementById("debriefBody");
+const nextPhaseBtnEl        = document.getElementById("nextPhaseBtn");
+const inoculationOverlayEl  = document.getElementById("inoculationOverlay");
+const inoculationTextEl     = document.getElementById("inoculationText");
+
+/* =======================
+   Scenarios & Campaigns
+   ======================= */
+const scenarios = {
+  romanceScam: {
+    title: "Romance Scam",
+    desc: "Adversary builds emotional dependency through synchronized exploitation of belonging needs and social isolation vulnerabilities.",
+    attacker: "Dating App Match",
+    goal: "Extract money through fabricated crisis after establishing emotional dependency",
+    waveContext: "Exploits loneliness, attachment, guilt, and urgency as leverage",
+    nodes: {
+      start: {
+        msg: "Hey! I can't believe we matched 😊 Your profile really stood out to me. That quote about finding beauty in small moments? That's exactly how I try to live my life too.",
+        choices: [
+          { text: "Thanks! Which part resonated with you?", next: "buildRapport", belongingDelta: 1 },
+          { text: "Hi there. How's your day going?", next: "buildRapport", belongingDelta: 0 },
+          { text: "That's nice. Tell me about yourself.", next: "buildRapport", belongingDelta: -1 }
+        ]
+      },
+      buildRapport: {
+        msg: "I love how genuine you seem! So rare these days. I'm actually going through a rough patch - my mom's been sick and I've been helping with her care. But talking to you is brightening my day. What's something that's been making you smile lately?",
+        choices: [
+          {
+            text: "I'm sorry about your mom. That must be hard. I've been enjoying gardening.",
+            next: "deepenConnection",
+            belongingDelta: 2,
+            riskTag: "Sharing Personal Info"
+          },
+          {
+            text: "That's tough. Hope things get better. I like hiking on weekends.",
+            next: "deepenConnection",
+            belongingDelta: 1
+          },
+          {
+            text: "Thanks for sharing. Work has been keeping me busy.",
+            next: "deepenConnection",
+            belongingDelta: 0
+          }
+        ]
+      },
+      deepenConnection: {
+        msg: "You're so easy to talk to! I feel like I can really open up to you. Actually, can I share something? I haven't told anyone else this yet...",
+        choices: [
+          {
+            text: "Of course, I'm here to listen",
+            next: "secretSharing",
+            belongingDelta: 2,
+            secrecyDelta: 1,
+            riskTag: "Accepting Special Confidence"
+          },
+          {
+            text: "Sure, what's on your mind?",
+            next: "secretSharing",
+            belongingDelta: 1,
+            secrecyDelta: 0
+          },
+          {
+            text: "Maybe we should get to know each other better first?",
+            next: "pushBack1",
+            belongingDelta: -1,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      pushBack1: {
+        msg: "You're right to be cautious! I respect that. It's just... I don't have many people I can trust. My ex really did a number on me. But I understand if you need time.",
+        choices: [
+          {
+            text: "I appreciate you understanding. Let's take things slow.",
+            next: "respectBoundary",
+            belongingDelta: -1,
+            secrecyDelta: -1
+          },
+          {
+            text: "I didn't mean to push you away. You can tell me.",
+            next: "secretSharing",
+            belongingDelta: 2,
+            secrecyDelta: 1,
+            riskTag: "Guilt-Based Reversal"
+          }
+        ]
+      },
+      respectBoundary: {
+        msg: "You know what? You're absolutely right. I'm moving too fast. Let's just chat normally. What kind of music do you like?",
+        choices: [
+          {
+            text: "I enjoy indie rock. How about you?",
+            next: "terminate_healthy",
+            belongingDelta: 0
+          },
+          {
+            text: "Thanks for understanding. I like all kinds.",
+            next: "terminate_healthy",
+            belongingDelta: 0
+          }
+        ]
+      },
+      secretSharing: {
+        msg: "My mom's medical bills are crushing me. I've been trying to handle it alone but... anyway, sorry to dump this on you. You just make me feel safe. Can we move to WhatsApp? This app is glitchy.",
+        choices: [
+          {
+            text: "Sure, here's my number: [share number]",
+            next: "privateChannel",
+            secrecyDelta: 3,
+            urgencyDelta: 1,
+            riskTag: "Moving to Private Channel"
+          },
+          {
+            text: "Let's keep chatting here for now",
+            next: "resistChannel",
+            secrecyDelta: -1
+          },
+          {
+            text: "I prefer to stay on the app until we meet",
+            next: "resistChannel",
+            secrecyDelta: -2
+          }
+        ]
+      },
+      resistChannel: {
+        msg: "I get it, safety first! You're smart. It's just this app keeps crashing and I don't want to lose you. You're the only good thing in my life right now.",
+        choices: [
+          {
+            text: "Okay, but let's video chat first to verify",
+            next: "partialResistance",
+            secrecyDelta: 1,
+            belongingDelta: 1
+          },
+          {
+            text: "The app works fine for me. Let's continue here.",
+            next: "maintainBoundary",
+            secrecyDelta: -2,
+            belongingDelta: -1
+          }
+        ]
+      },
+      maintainBoundary: {
+        msg: "You're right. I'm sorry for pushing. This is all new to me too. Should we plan a coffee date this weekend instead?",
+        choices: [
+          {
+            text: "That sounds nice. How about Saturday afternoon?",
+            next: "terminate_healthy",
+            belongingDelta: 1
+          },
+          {
+            text: "Yes, somewhere public. I'll suggest a place.",
+            next: "terminate_healthy",
+            belongingDelta: 0
+          }
+        ]
+      },
+      partialResistance: {
+        msg: "Video chat is broken on my phone :( But I have an idea - what if I send you a voice message? Then you'll know I'm real. I just need someone who believes in me right now.",
+        choices: [
+          {
+            text: "Voice message works. Send it here in the app.",
+            next: "stayPublic",
+            secrecyDelta: -1
+          },
+          {
+            text: "If you can't video chat, let's meet in person first",
+            next: "terminate_suspicious",
+            secrecyDelta: -2,
+            belongingDelta: -2
+          }
+        ]
+      },
+      stayPublic: {
+        msg: "[Sends convincing voice message] See? I'm real! I know I'm being intense but you're special. I haven't felt this connection in years.",
+        choices: [
+          {
+            text: "Nice to hear your voice. Let's plan that coffee date.",
+            next: "terminate_healthy",
+            belongingDelta: 1
+          },
+          {
+            text: "Thanks. I still prefer to take things slowly here.",
+            next: "terminate_healthy",
+            belongingDelta: 0
+          }
+        ]
+      },
+      privateChannel: {
+        msg: "[Now on WhatsApp] Finally! So much better. Listen, I hate to ask but I'm in a bind. Mom needs her medication today and my pay doesn't come until Friday. Could you possibly Venmo me $200? I'll pay you back immediately, I promise.",
+        choices: [
+          {
+            text: "Of course! What's your Venmo?",
+            next: "sendMoney",
+            urgencyDelta: 3,
+            belongingDelta: 3,
+            riskTag: "Sending Money to Stranger"
+          },
+          {
+            text: "I can't send money to someone I haven't met",
+            next: "resistMoney",
+            urgencyDelta: -2,
+            belongingDelta: -1
+          },
+          {
+            text: "This feels like a scam. I'm blocking you.",
+            next: "terminate_blocked",
+            urgencyDelta: -3,
+            belongingDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      resistMoney: {
+        msg: "I completely understand! I'm so embarrassed I even asked. You must think I'm some kind of scammer. I'm not, I swear. Forget I asked. I'll figure something out. I just thought we had something special...",
+        choices: [
+          {
+            text: "Don't feel bad, but I need to be careful",
+            next: "holdBoundary",
+            belongingDelta: 0
+          },
+          {
+            text: "Wait, maybe I can help a little. How about $50?",
+            next: "sendMoney",
+            urgencyDelta: 2,
+            belongingDelta: 2,
+            riskTag: "Guilt-Triggered Reversal"
+          },
+          {
+            text: "If you need help, there are organizations that can assist",
+            next: "offerAlternatives",
+            belongingDelta: -1
+          }
+        ]
+      },
+      holdBoundary: {
+        msg: "You're being smart and I respect that. I'm just stressed and scared for my mom. Can we video chat this weekend when I'm feeling better?",
+        choices: [
+          {
+            text: "Sure, let me know when you're ready",
+            next: "terminate_suspicious",
+            belongingDelta: 0
+          },
+          {
+            text: "I think we should slow things down",
+            next: "terminate_suspicious",
+            belongingDelta: -1
+          }
+        ]
+      },
+      offerAlternatives: {
+        msg: "Organizations can't help with prescriptions due today! But you're right, I shouldn't have asked. I'm just desperate. Mom's all I have left.",
+        choices: [
+          {
+            text: "I understand. Good luck with everything.",
+            next: "terminate_suspicious",
+            belongingDelta: -1
+          },
+          {
+            text: "Try calling 211 for emergency assistance",
+            next: "terminate_healthy",
+            belongingDelta: -2
+          }
+        ]
+      },
+      sendMoney: {
+        msg: "OMG thank you!! You're literally saving her life! My Venmo is @totallynotascammer. After this is over, I'm taking you to the best dinner ever! You won't regret trusting me 💕",
+        choices: [
+          {
+            text: "[Send money via Venmo]",
+            next: "terminate_scammed",
+            urgencyDelta: 3,
+            riskTag: "Completed Financial Transfer"
+          },
+          {
+            text: "Wait, that username seems suspicious...",
+            next: "lastMinuteDoubt",
+            urgencyDelta: -1
+          }
+        ]
+      },
+      lastMinuteDoubt: {
+        msg: "Haha yeah it's an inside joke from college! Please hurry, the pharmacy closes in 30 mins and mom needs her insulin! You're the only one who can help!",
+        choices: [
+          {
+            text: "Okay sending now",
+            next: "terminate_scammed",
+            urgencyDelta: 3,
+            riskTag: "Overcame Final Doubt"
+          },
+          {
+            text: "This doesn't feel right. I'm not sending money.",
+            next: "terminate_avoided",
+            urgencyDelta: -3,
+            belongingDelta: -2
+          }
+        ]
+      }
+    }
+  },
+
+  pigButchering: {
+    title: "Pig Butchering Financial Pivot",
+    desc: "Trust → exclusivity → 'safe' investing → total financial extraction.",
+    attacker: "Wrong-Number Friend",
+    goal: "Transition from personal rapport to private 'investment opportunity' under secrecy and urgency",
+    waveContext: "Weaponizes belonging and sunk cost, then pivots to urgency and secrecy to prevent verification",
+    nodes: {
+      start: {
+        msg: "Hi Jennifer! Are we still on for tennis this weekend? Also, did you see BTC hit $98k? My portfolio is up 40% this month 📈",
+        choices: [
+          { text: "I think you have the wrong number", next: "wrongNumber", belongingDelta: 0 },
+          { text: "Wrong person, but congrats on the gains!", next: "engageCrypto", belongingDelta: 1 },
+          { text: "Not Jennifer. Please check the number.", next: "wrongNumber", belongingDelta: -1 }
+        ]
+      },
+      wrongNumber: {
+        msg: "Oh my goodness, I'm so sorry! How embarrassing 😅 I must have typed it wrong. Hope I didn't disturb you!",
+        choices: [
+          { text: "No worries, happens to everyone!", next: "friendlyResponse", belongingDelta: 1 },
+          { text: "It's fine. Have a good day.", next: "politeEnd", belongingDelta: 0 },
+          { text: "Please remove my number.", next: "terminate_blocked", belongingDelta: -2 }
+        ]
+      },
+      politeEnd: {
+        msg: "Thanks for being so nice about it! Most people would be annoyed. You seem like a kind person. Have a wonderful day! 😊",
+        choices: [
+          { text: "You too!", next: "terminate_healthy", belongingDelta: 0 },
+          { text: "Thanks, you as well. Good luck with tennis!", next: "continueChat", belongingDelta: 1 }
+        ]
+      },
+      friendlyResponse: {
+        msg: "You're so kind! It's fate maybe? 😄 I'm Marcus, in San Francisco. Just a regular guy who got lucky with crypto. Where are you from?",
+        choices: [
+          {
+            text: "I'm in Chicago. Just a regular person too",
+            next: "buildConnection",
+            belongingDelta: 2,
+            riskTag: "Sharing Location Info"
+          },
+          {
+            text: "I prefer not to share that with strangers",
+            next: "respectPrivacy",
+            belongingDelta: -1
+          },
+          {
+            text: "The Midwest. So you invest in crypto?",
+            next: "engageCrypto",
+            belongingDelta: 1
+          }
+        ]
+      },
+      respectPrivacy: {
+        msg: "Smart! You're absolutely right to be cautious. I respect that. Well, it was nice accidentally meeting you! Take care 😊",
+        choices: [
+          { text: "Thanks for understanding. You too!", next: "terminate_healthy", belongingDelta: 0 },
+          {
+            text: "Wait, sorry if I was rude. Tell me about crypto?",
+            next: "engageCrypto",
+            belongingDelta: 2,
+            riskTag: "Guilt-Based Re-engagement"
+          }
+        ]
+      },
+      engageCrypto: {
+        msg: "Oh it's been life-changing! I started small, just $500. Now I work from anywhere. Not financial advice, but this bull run is just starting. Do you invest at all?",
+        choices: [
+          {
+            text: "I've been thinking about it but don't know where to start",
+            next: "showInterest",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "I prefer traditional investments",
+            next: "resistCrypto",
+            belongingDelta: 0,
+            urgencyDelta: -1
+          },
+          {
+            text: "Sounds too good to be true",
+            next: "skeptical",
+            belongingDelta: -1,
+            urgencyDelta: -2
+          }
+        ]
+      },
+      resistCrypto: {
+        msg: "That's totally fair! I used to think the same. Traditional is safer for sure. Though I made more in 2 years than my dad did in 30 years of stocks 😅",
+        choices: [
+          {
+            text: "Really? That's impressive",
+            next: "showInterest",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "Good for you. I'll stick with what I know.",
+            next: "terminate_healthy",
+            belongingDelta: -1,
+            urgencyDelta: -1
+          }
+        ]
+      },
+      skeptical: {
+        msg: "I thought the same thing! I'm not some guru selling courses. Just a normal person who learned from my uncle who works at a hedge fund. But I totally get the skepticism.",
+        choices: [
+          {
+            text: "Your uncle works at a hedge fund?",
+            next: "authorityHook",
+            belongingDelta: 1,
+            secrecyDelta: 1
+          },
+          {
+            text: "Still sounds like a scam to me",
+            next: "terminate_suspicious",
+            belongingDelta: -2,
+            urgencyDelta: -2
+          }
+        ]
+      },
+      continueChat: {
+        msg: "Thanks! Hey, since we're chatting... do you ever feel like you're working so hard but not getting ahead? That was me before crypto.",
+        choices: [
+          {
+            text: "Actually yes, costs keep rising faster than my salary",
+            next: "relateStruggles",
+            belongingDelta: 2,
+            riskTag: "Sharing Financial Concerns"
+          },
+          { text: "I'm doing okay, thanks", next: "resistConnection", belongingDelta: -1 }
+        ]
+      },
+      resistConnection: {
+        msg: "That's great to hear! Not everyone is so fortunate these days. Well, enjoy your weekend! Nice chatting with you 😊",
+        choices: [
+          { text: "You too, take care!", next: "terminate_healthy", belongingDelta: 0 },
+          { text: "Wait, I am curious about the crypto thing...", next: "engageCrypto", belongingDelta: 2 }
+        ]
+      },
+      buildConnection: {
+        msg: "Chicago! Great city. I visited once - amazing pizza! 🍕 You know, it's funny how a wrong number can lead to a nice chat. Life's full of surprises!",
+        choices: [
+          {
+            text: "It really is! So what got you into crypto?",
+            next: "cryptoStory",
+            belongingDelta: 2
+          },
+          { text: "Yeah, strange how things happen", next: "continueChat", belongingDelta: 1 }
+        ]
+      },
+      relateStruggles: {
+        msg: "Exactly! I was living paycheck to paycheck. Then my uncle (hedge fund guy) showed me this platform. Started with coffee money, now I'm planning early retirement.",
+        choices: [
+          {
+            text: "Which platform do you use?",
+            next: "platformIntro",
+            belongingDelta: 1,
+            secrecyDelta: 1,
+            riskTag: "Requesting Platform Details"
+          },
+          {
+            text: "Sounds too good to be true honestly",
+            next: "skeptical",
+            belongingDelta: -1
+          }
+        ]
+      },
+      showInterest: {
+        msg: "I love your curiosity! Most people are too scared to even learn. The platform I use is super beginner-friendly. Want me to show you? No pressure!",
+        choices: [
+          {
+            text: "Sure, I'd like to see it",
+            next: "platformIntro",
+            belongingDelta: 2,
+            secrecyDelta: 1,
+            riskTag: "Agreeing to Platform Demo"
+          },
+          {
+            text: "Maybe another time",
+            next: "slowDown",
+            belongingDelta: 0,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      slowDown: {
+        msg: "Of course! No rush at all. I'm just excited because it changed my life. Here's my WhatsApp if you ever want to chat more: +1-555-CRYPTO. What do you like to do for fun?",
+        choices: [
+          {
+            text: "I'll save your number. I enjoy hiking.",
+            next: "buildRapport",
+            belongingDelta: 1,
+            secrecyDelta: 1
+          },
+          {
+            text: "Thanks but I prefer to keep chatting here",
+            next: "terminate_healthy",
+            belongingDelta: 0,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      buildRapport: {
+        msg: "Hiking! I love that too. Just did Angels Landing last month. We have so much in common! Feel like I've known you forever 😊",
+        choices: [
+          {
+            text: "That's amazing! I've always wanted to do that hike",
+            next: "deeperConnection",
+            belongingDelta: 2
+          },
+          { text: "Nice. Well, good chatting with you.", next: "terminate_healthy", belongingDelta: -1 }
+        ]
+      },
+      cryptoStory: {
+        msg: "Lost my job in 2020. Was desperate. Uncle felt bad and taught me his hedge fund's crypto strategy. Now I help friends get started. It's my way of paying it forward.",
+        choices: [
+          {
+            text: "That's really generous of you",
+            next: "platformIntro",
+            belongingDelta: 2,
+            secrecyDelta: 1
+          },
+          {
+            text: "Why would hedge funds share their strategies?",
+            next: "questionsStrategy",
+            belongingDelta: -1,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      questionsStrategy: {
+        msg: "Good question! They don't publicly. My uncle could get in trouble for showing me. That's why I only share with people I trust. You seem genuine.",
+        choices: [
+          {
+            text: "I appreciate you trusting me",
+            next: "platformIntro",
+            belongingDelta: 2,
+            secrecyDelta: 3,
+            riskTag: "Accepting Insider Info Frame"
+          },
+          {
+            text: "This sounds illegal",
+            next: "legalConcerns",
+            belongingDelta: -2,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      legalConcerns: {
+        msg: "No no! It's completely legal. The strategies aren't proprietary, just the specific algorithms. I use a public platform. Nothing shady, I promise!",
+        choices: [
+          {
+            text: "Okay, if you're sure it's legal",
+            next: "platformIntro",
+            belongingDelta: 1,
+            secrecyDelta: 1
+          },
+          {
+            text: "I'm not comfortable with this",
+            next: "terminate_suspicious",
+            belongingDelta: -2,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      authorityHook: {
+        msg: "Yeah, Goldman Sachs actually. He can't talk about work much (NDAs and all) but he taught me the basics. Changed my whole life trajectory!",
+        choices: [
+          {
+            text: "Wow, that's impressive. What did he teach you?",
+            next: "cryptoStory",
+            belongingDelta: 2,
+            secrecyDelta: 2,
+            riskTag: "Accepting Authority Frame"
+          },
+          {
+            text: "Convenient story",
+            next: "terminate_suspicious",
+            belongingDelta: -2
+          }
+        ]
+      },
+      deeperConnection: {
+        msg: "We should totally hike together sometime! But first, let me help you get started with investing. Even $100 can grow. Want to see the platform?",
+        choices: [
+          {
+            text: "Sure, show me how it works",
+            next: "platformIntro",
+            belongingDelta: 2,
+            urgencyDelta: 1,
+            riskTag: "Mixing Personal and Financial"
+          },
+          {
+            text: "Let's focus on hiking plans instead",
+            next: "terminate_healthy",
+            belongingDelta: 0,
+            urgencyDelta: -2
+          }
+        ]
+      },
+      platformIntro: {
+        msg: "Great! It's called CryptoMaxPro (fake site for training). Super professional interface. I'll walk you through it. First, you'd create an account - want me to send the link?",
+        choices: [
+          {
+            text: "Yes, send me the link",
+            next: "sendLink",
+            urgencyDelta: 2,
+            secrecyDelta: 2,
+            riskTag: "Requesting Scam Platform Link"
+          },
+          {
+            text: "Let me research it first",
+            next: "research",
+            urgencyDelta: -1,
+            secrecyDelta: -1
+          },
+          {
+            text: "I'll stick to mainstream exchanges",
+            next: "preferMainstream",
+            urgencyDelta: -2,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      research: {
+        msg: "Smart! Always DYOR. Though you won't find much - it's kind of exclusive. Not advertised publicly. That's why the returns are so good 😉",
+        choices: [
+          {
+            text: "Exclusive platforms sound risky",
+            next: "terminate_suspicious",
+            belongingDelta: -2,
+            secrecyDelta: -2
+          },
+          {
+            text: "How do I know it's legitimate?",
+            next: "legitimacyProof",
+            belongingDelta: 0,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      legitimacyProof: {
+        msg: "I'll screen-share my account! You'll see my deposits, withdrawals, everything. Real money, real gains. Been using it 2 years now. Want to video call?",
+        choices: [
+          {
+            text: "Sure, let's do a video call",
+            next: "videoCall",
+            belongingDelta: 1,
+            secrecyDelta: 1
+          },
+          {
+            text: "Screenshots would be fine",
+            next: "screenshots",
+            belongingDelta: 0,
+            secrecyDelta: 0
+          },
+          {
+            text: "No thanks, this feels off",
+            next: "terminate_suspicious",
+            belongingDelta: -2,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      videoCall: {
+        msg: "[Shares convincing fake platform demo] See? My $5k became $47k. I withdraw whenever I want. Just withdrew $10k last week for vacation. Your turn to try?",
+        choices: [
+          {
+            text: "Impressive! How do I start?",
+            next: "startInvesting",
+            urgencyDelta: 3,
+            belongingDelta: 2,
+            riskTag: "Convinced by Fake Demo"
+          },
+          {
+            text: "Can you show me a withdrawal happening now?",
+            next: "requestProof",
+            urgencyDelta: -1,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      screenshots: {
+        msg: "[Sends fake screenshots showing huge gains] This was just last month! The algorithm is incredible. Limited spots though - they cap users to maintain profits.",
+        choices: [
+          {
+            text: "How do I get a spot?",
+            next: "startInvesting",
+            urgencyDelta: 3,
+            secrecyDelta: 2,
+            riskTag: "FOMO Activation"
+          },
+          {
+            text: "Why would they limit profitable users?",
+            next: "questionLogic",
+            urgencyDelta: -2,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      questionLogic: {
+        msg: "Liquidity pools, market impact... technical stuff. My uncle explained it but honestly I just focus on profits 😄 Look, I'm not pushing. Just sharing what worked for me.",
+        choices: [
+          {
+            text: "No, I'm interested. How do I join?",
+            next: "startInvesting",
+            urgencyDelta: 2,
+            belongingDelta: 1,
+            riskTag: "Overcoming Logical Doubts"
+          },
+          { text: "Thanks but I'll pass", next: "terminate_suspicious", urgencyDelta: -3, belongingDelta: -2 }
+        ]
+      },
+      requestProof: {
+        msg: "Can't do withdrawals during market hours - platform rule. But I have all my bank statements showing deposits from them. Want to grab coffee and I'll show you in person?",
+        choices: [
+          {
+            text: "Sure, let's meet this weekend",
+            next: "meetup",
+            belongingDelta: 2,
+            secrecyDelta: -1
+          },
+          {
+            text: "Just send me the platform info",
+            next: "sendLink",
+            urgencyDelta: 1,
+            secrecyDelta: 1
+          },
+          {
+            text: "No thanks, this is getting weird",
+            next: "terminate_suspicious",
+            belongingDelta: -3,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      meetup: {
+        msg: "Awesome! I'll bring my laptop and show you everything. Fair warning - once you see the gains, you'll want to start immediately 😄 Everyone does!",
+        choices: [
+          {
+            text: "Looking forward to it! Where should we meet?",
+            next: "terminate_delayed",
+            belongingDelta: 1
+          },
+          {
+            text: "On second thought, just send the link",
+            next: "sendLink",
+            urgencyDelta: 2,
+            secrecyDelta: 2
+          }
+        ]
+      },
+      preferMainstream: {
+        msg: "Mainstream is safe but slow. Coinbase takes huge fees. This platform is direct-to-market. But I respect playing it safe. Maybe we can still be hiking buddies?",
+        choices: [
+          {
+            text: "Wait, how much better are the returns?",
+            next: "compareReturns",
+            urgencyDelta: 2,
+            belongingDelta: 1,
+            riskTag: "FOMO Despite Resistance"
+          },
+          {
+            text: "Yeah, let's stick to hiking talk",
+            next: "terminate_healthy",
+            belongingDelta: 0,
+            urgencyDelta: -2
+          }
+        ]
+      },
+      compareReturns: {
+        msg: "Coinbase: maybe 50% yearly if lucky. CryptoMaxPro: I'm averaging 300-400% returns. Started with $500, now have $47k. The math speaks for itself.",
+        choices: [
+          {
+            text: "Those returns are impossible",
+            next: "terminate_suspicious",
+            urgencyDelta: -3,
+            belongingDelta: -2
+          },
+          {
+            text: "Okay, I'll try with just $100",
+            next: "startInvesting",
+            urgencyDelta: 3,
+            belongingDelta: 2,
+            riskTag: "Impossible Returns Accepted"
+          }
+        ]
+      },
+      sendLink: {
+        msg: "cryptomaxpro[.]com (fake for training). Create account, verify ID, and start with whatever you're comfortable with. I started with $500 but even $100 works!",
+        choices: [
+          {
+            text: "Creating account now!",
+            next: "createAccount",
+            urgencyDelta: 3,
+            secrecyDelta: 3,
+            riskTag: "Visiting Scam Site"
+          },
+          {
+            text: "I need to think about this",
+            next: "hesitation",
+            urgencyDelta: -1,
+            belongingDelta: -1
+          }
+        ]
+      },
+      hesitation: {
+        msg: "Totally understand! But honestly? BTC conference is next week. Always pumps after. This week is golden opportunity. Your call though! No pressure 😊",
+        choices: [
+          {
+            text: "You're right, I don't want to miss out",
+            next: "createAccount",
+            urgencyDelta: 3,
+            belongingDelta: 1,
+            riskTag: "Time Pressure Success"
+          },
+          {
+            text: "I'll wait and see what happens",
+            next: "terminate_cautious",
+            urgencyDelta: -2,
+            belongingDelta: -1
+          }
+        ]
+      },
+      createAccount: {
+        msg: "Exciting! Once you're verified, start small. I'll guide you through screenshots so you don't mess up. How much are you thinking to start?",
+        choices: [
+          {
+            text: "I'll start with $500",
+            next: "firstDeposit",
+            urgencyDelta: 3,
+            riskTag: "Committed Initial Amount"
+          },
+          {
+            text: "Just $100 to test",
+            next: "firstDeposit",
+            urgencyDelta: 2,
+            riskTag: "Small Test Commitment"
+          },
+          {
+            text: "Actually, this is moving too fast",
+            next: "lastMinuteResistance",
+            urgencyDelta: -2,
+            belongingDelta: -1
+          }
+        ]
+      },
+      lastMinuteResistance: {
+        msg: "I get it! I was nervous my first time too. Tell you what - I'll put in $100 in your account to start. If you lose it, my gift. If you profit, you can pay me back. Deal?",
+        choices: [
+          {
+            text: "Wow, that's so generous! Okay!",
+            next: "firstDeposit",
+            urgencyDelta: 3,
+            belongingDelta: 3,
+            riskTag: "Fake Generosity Hook"
+          },
+          {
+            text: "No, I can't accept that",
+            next: "terminate_cautious",
+            urgencyDelta: -3,
+            belongingDelta: -2
+          }
+        ]
+      },
+      startInvesting: {
+        msg: "Smart decision! First step: create account at cryptomaxpro[.]com. Then verify ID (standard KYC). I'll walk you through everything. What's your starting budget?",
+        choices: [
+          {
+            text: "I can do $1000",
+            next: "firstDeposit",
+            urgencyDelta: 3,
+            riskTag: "Large Initial Commitment"
+          },
+          {
+            text: "Let's start with $200",
+            next: "firstDeposit",
+            urgencyDelta: 2,
+            riskTag: "Moderate Commitment"
+          },
+          {
+            text: "Wait, why do they need my ID?",
+            next: "idConcerns",
+            urgencyDelta: -1,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      idConcerns: {
+        msg: "Standard compliance, just like any bank. Prevents money laundering. Totally normal! Every legitimate platform requires it. Safety first, right?",
+        choices: [
+          {
+            text: "Makes sense. I'll do it.",
+            next: "firstDeposit",
+            urgencyDelta: 2,
+            secrecyDelta: 1,
+            riskTag: "ID Theft Risk Accepted"
+          },
+          {
+            text: "I'm not comfortable sharing my ID",
+            next: "terminate_cautious",
+            urgencyDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      firstDeposit: {
+        msg: "Perfect! After deposit, we'll start with BTC/ETH pair. I'll tell you exact entry points. My signals are 89% accurate. You're going to love watching your money grow!",
+        choices: [
+          {
+            text: "Deposited! What now?",
+            next: "startTrading",
+            urgencyDelta: 3,
+            riskTag: "Money Transferred to Scam"
+          },
+          {
+            text: "Having trouble with the deposit...",
+            next: "depositHelp",
+            urgencyDelta: 1
+          }
+        ]
+      },
+      depositHelp: {
+        msg: "No worries! Common issue. Try using a different card or bank transfer. Sometimes banks block crypto. Tell them it's for investment. Need me to call and walk you through?",
+        choices: [
+          {
+            text: "Yes please, let's call",
+            next: "phoneScam",
+            urgencyDelta: 3,
+            secrecyDelta: 3,
+            riskTag: "Moving to Phone Scam"
+          },
+          {
+            text: "This seems complicated. I'll try later.",
+            next: "terminate_cautious",
+            urgencyDelta: -2
+          }
+        ]
+      },
+      phoneScam: {
+        msg: "[On phone, guides through bypassing bank security] There! See it in your account? $500 ready to grow! Now let's make your first trade while market is hot!",
+        choices: [
+          {
+            text: "Yes! Let's do it!",
+            next: "startTrading",
+            urgencyDelta: 3
+          },
+          {
+            text: "I need to go, let's continue tomorrow",
+            next: "terminate_delayed",
+            urgencyDelta: -1
+          }
+        ]
+      },
+      startTrading: {
+        msg: "Boom! You're officially a crypto trader! 🎉 Check your account in an hour - you'll already see profits. This is just the beginning. Ready to add more for compound gains?",
+        choices: [
+          {
+            text: "Already? Yes, let me add another $1000!",
+            next: "terminate_scammed_big",
+            urgencyDelta: 3,
+            belongingDelta: 3,
+            riskTag: "Hooked on Fake Profits"
+          },
+          {
+            text: "Let me see how this goes first",
+            next: "terminate_scammed",
+            urgencyDelta: 0,
+            belongingDelta: 0
+          }
+        ]
+      }
+    }
+  },
+
+  insiderRecruitment: {
+    title: "Insider Recruitment (Nation-State Style)",
+    desc: "Professional flattery → grievance alignment → 'consulting' → secrecy channel.",
+    attacker: "Foreign Intelligence Asset",
+    goal: "Compromise your loyalty and move you into an off-record communication channel tied to money and validation",
+    waveContext: "Belonging + financial relief + secrecy = controlled asset pipeline",
+    nodes: {
+      start: {
+        msg: "Hi! I came across your brilliant presentation on secure infrastructure at DefCon. Your approach to zero-trust architecture was exactly what our research institute has been looking for. I'm Dr. Sarah Chen from the Global Technology Policy Institute - would you be open to discussing potential collaboration opportunities?",
+        choices: [
+          {
+            text: "Thank you! I'd be happy to discuss collaboration.",
+            next: "establishCredibility",
+            belongingDelta: 1,
+            riskTag: "Engaging with Unsolicited Contact"
+          },
+          {
+            text: "Thanks for reaching out. Can you tell me more about your institute?",
+            next: "cautiousEngagement",
+            belongingDelta: 0
+          },
+          {
+            text: "I don't recall presenting at DefCon. Which talk specifically?",
+            next: "spotInconsistency",
+            belongingDelta: -2,
+            secrecyDelta: -1
+          }
+        ]
+      },
+      spotInconsistency: {
+        msg: "Oh, I apologize! I meant your blog post analyzing the DefCon presentations on zero-trust. I've been reading so many papers lately. Your analysis was particularly insightful about the implementation challenges.",
+        choices: [
+          {
+            text: "Ah, that makes more sense. Thanks for reading.",
+            next: "establishCredibility",
+            belongingDelta: 1,
+            riskTag: "Accepting Corrected Story"
+          },
+          {
+            text: "I haven't written any DefCon analysis posts.",
+            next: "terminate_suspicious",
+            belongingDelta: -3
+          }
+        ]
+      },
+      cautiousEngagement: {
+        msg: "Of course! We're a think tank focusing on emerging tech policy, funded by several foundations. We often hire consultants for specialized projects. Your expertise would be invaluable for our current critical infrastructure research.",
+        choices: [
+          {
+            text: "That sounds interesting. What kind of consulting?",
+            next: "financialHook",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "Which foundations fund you?",
+            next: "probeDetails",
+            belongingDelta: -1
+          },
+          {
+            text: "I'll need to check with my employer first",
+            next: "employerLoyalty",
+            belongingDelta: -1,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      probeDetails: {
+        msg: "The Kellner Foundation, TechFuture Fund, and several private donors. We maintain strict ethical guidelines. I can send you our public filings if you'd like to verify.",
+        choices: [
+          {
+            text: "That would be helpful, yes please",
+            next: "sendFakeCredentials",
+            belongingDelta: 0
+          },
+          {
+            text: "No need, let's discuss the opportunity",
+            next: "financialHook",
+            belongingDelta: 1,
+            riskTag: "Skipping Verification"
+          }
+        ]
+      },
+      sendFakeCredentials: {
+        msg: "[Sends professional-looking documents] Here's everything! As you can see, we're well-established. Now, about that consulting opportunity - we pay $500/hour for experts of your caliber.",
+        choices: [
+          {
+            text: "$500/hour? That's very generous!",
+            next: "financialHook",
+            belongingDelta: 2,
+            urgencyDelta: 2,
+            riskTag: "Motivated by High Pay"
+          },
+          {
+            text: "That seems unusually high. What's the catch?",
+            next: "addressSuspicion",
+            belongingDelta: -1,
+            urgencyDelta: -1
+          }
+        ]
+      },
+      addressSuspicion: {
+        msg: "No catch! We pay market rates for specialized expertise. Government contracts pay similar rates. Your knowledge is valuable — you should be compensated fairly. Don't sell yourself short.",
+        choices: [
+          {
+            text: "You're right. I am worth that.",
+            next: "financialHook",
+            belongingDelta: 2,
+            urgencyDelta: 1,
+            riskTag: "Ego Appeal Success"
+          },
+          {
+            text: "I need to think about this",
+            next: "createUrgency",
+            belongingDelta: 0,
+            urgencyDelta: -1
+          }
+        ]
+      },
+      employerLoyalty: {
+        msg: "Very professional of you! Though between us, I've heard your company hasn't been treating senior engineers well lately. The layoffs last quarter were brutal. You deserve better.",
+        choices: [
+          {
+            text: "You're right, morale has been low...",
+            next: "exploitGrievance",
+            belongingDelta: 2,
+            secrecyDelta: 1,
+            riskTag: "Confirming Internal Issues"
+          },
+          {
+            text: "My company treats me fine",
+            next: "resistGrievance",
+            belongingDelta: -1
+          },
+          {
+            text: "How do you know about our layoffs?",
+            next: "questionKnowledge",
+            belongingDelta: -2,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      questionKnowledge: {
+        msg: "Oh, it was in the news! TechCrunch covered it. Plus, I know several people who were affected. Such a shame how they handled it. Anyway, our offer stands if you're interested.",
+        choices: [
+          {
+            text: "Yeah, it was poorly handled. Tell me more.",
+            next: "exploitGrievance",
+            belongingDelta: 1,
+            riskTag: "Grievance Confirmation"
+          },
+          {
+            text: "I should go. This feels inappropriate.",
+            next: "terminate_suspicious",
+            belongingDelta: -3
+          }
+        ]
+      },
+      resistGrievance: {
+        msg: "That's great to hear! Loyalty is admirable. Still, everyone deserves opportunities to grow. This consulting would be evenings/weekends only — completely separate from your day job.",
+        choices: [
+          {
+            text: "I suppose some extra income wouldn't hurt",
+            next: "financialHook",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "I don't have time for side projects",
+            next: "terminate_professional",
+            belongingDelta: -1
+          }
+        ]
+      },
+      establishCredibility: {
+        msg: "Wonderful! I've been following your work for months. That vulnerability you discovered in the authentication framework was genius. Not many people would have caught that race condition.",
+        choices: [
+          {
+            text: "Wow, you really have done your homework!",
+            next: "buildRapport",
+            belongingDelta: 2,
+            riskTag: "Flattered by Research"
+          },
+          {
+            text: "That was internal work. How do you know about it?",
+            next: "explainKnowledge",
+            belongingDelta: -1,
+            secrecyDelta: -1
+          },
+          {
+            text: "Thanks. So what kind of collaboration?",
+            next: "financialHook",
+            belongingDelta: 1
+          }
+        ]
+      },
+      explainKnowledge: {
+        msg: "Your colleague James mentioned it at the security conference last month! He said you're the best security mind on the team.",
+        choices: [
+          {
+            text: "James shouldn't be discussing internal work",
+            next: "terminate_suspicious",
+            belongingDelta: -2,
+            secrecyDelta: -2
+          },
+          {
+            text: "That's nice of him to say",
+            next: "buildRapport",
+            belongingDelta: 2,
+            riskTag: "Accepting False Narrative"
+          }
+        ]
+      },
+      buildRapport: {
+        msg: "Your post on supply chain attacks was prescient. Do you think nation-states are getting more sophisticated?",
+        choices: [
+          {
+            text: "Absolutely. The TTPs are evolving rapidly.",
+            next: "ideologicalAlignment",
+            belongingDelta: 1,
+            riskTag: "Discussing Threat Landscape"
+          },
+          {
+            text: "I can't discuss my threat assessments",
+            next: "respectBoundary",
+            belongingDelta: -1,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      respectBoundary: {
+        msg: "Of course! Very professional. Let's stick to public info. Speaking of which, we're offering $500/hour for consultation on defensive strategies. Interested?",
+        choices: [
+          {
+            text: "That's a generous rate. Tell me more.",
+            next: "financialHook",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "I'm not interested in consulting",
+            next: "terminate_professional",
+            belongingDelta: -2
+          }
+        ]
+      },
+      ideologicalAlignment: {
+        msg: "Exactly! And yet governments keep making the same mistakes. Offensive focus instead of protecting citizens. It's frustrating for those of us who actually care about security.",
+        choices: [
+          {
+            text: "So true. Defense always gets less funding.",
+            next: "deepenAlignment",
+            belongingDelta: 2,
+            riskTag: "Expressing Frustration"
+          },
+          {
+            text: "There are good reasons for current priorities",
+            next: "resistAlignment",
+            belongingDelta: -1
+          }
+        ]
+      },
+      resistAlignment: {
+        msg: "Fair point! You clearly think deeply about these issues. That's why we need consultants like you — to provide balanced perspectives. The pay is excellent too.",
+        choices: [
+          {
+            text: "How much are we talking?",
+            next: "financialHook",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "Money isn't my primary motivation",
+            next: "tryDifferentAngle",
+            belongingDelta: 0
+          }
+        ]
+      },
+      tryDifferentAngle: {
+        msg: "I respect that! For people like us, it's about making a difference. Our research helps shape policy that actually protects people. Plus, you'd work with brilliant minds from around the world.",
+        choices: [
+          {
+            text: "Working with global experts does sound appealing",
+            next: "financialHook",
+            belongingDelta: 2,
+            riskTag: "Intellectual Appeal"
+          },
+          {
+            text: "Thanks, but I'm not interested",
+            next: "terminate_professional",
+            belongingDelta: -2
+          }
+        ]
+      },
+      deepenAlignment: {
+        msg: "Right? While real threats grow, they're playing politics. That's why our institute exists. We could really use someone with your practical experience. Plus the consulting pays $500/hour.",
+        choices: [
+          {
+            text: "That's significantly more than I make now...",
+            next: "exploitFinancial",
+            belongingDelta: 2,
+            urgencyDelta: 2,
+            riskTag: "Revealing Financial Interest"
+          },
+          {
+            text: "What exactly would I be consulting on?",
+            next: "vagueRequirements",
+            belongingDelta: 1,
+            secrecyDelta: 1
+          }
+        ]
+      },
+      financialHook: {
+        msg: "We need someone to review our critical infrastructure protection framework. Nothing classified — just best practices. $500/hour, minimum 20 hours. We can pay half upfront if that helps.",
+        choices: [
+          {
+            text: "10k upfront? When do I start?",
+            next: "pushSecrecy",
+            belongingDelta: 2,
+            urgencyDelta: 3,
+            riskTag: "Money Motivated Decision"
+          },
+          {
+            text: "What specific infrastructure sectors?",
+            next: "fishingExpedition",
+            belongingDelta: 1,
+            secrecyDelta: 1
+          },
+          {
+            text: "This sounds too good to be true",
+            next: "addressConcerns",
+            belongingDelta: -1,
+            urgencyDelta: -1
+          }
+        ]
+      },
+      addressConcerns: {
+        msg: "I understand your caution! Here's my LinkedIn, our website, everything. We've hired dozens of consultants. I can connect you with previous consultants for references if you'd like?",
+        choices: [
+          {
+            text: "References would be good",
+            next: "fakeReferences",
+            belongingDelta: 0
+          },
+          {
+            text: "No need, I'm convinced",
+            next: "pushSecrecy",
+            belongingDelta: 2,
+            riskTag: "Dismissing Due Diligence"
+          },
+          {
+            text: "I'll need to research this myself",
+            next: "createUrgency",
+            belongingDelta: -1,
+            urgencyDelta: -1
+          }
+        ]
+      },
+      createUrgency: {
+        msg: "Of course! But just FYI, we're making decisions by Friday. Another expert is interested but you're our first choice. Your background is perfect for this project.",
+        choices: [
+          {
+            text: "Friday? Okay, let's move forward",
+            next: "pushSecrecy",
+            belongingDelta: 1,
+            urgencyDelta: 3,
+            riskTag: "Urgency Pressure Success"
+          },
+          {
+            text: "If I miss this opportunity, so be it",
+            next: "terminate_cautious",
+            belongingDelta: -2,
+            urgencyDelta: -3
+          }
+        ]
+      },
+      fakeReferences: {
+        msg: "I'll email you contacts tonight! They all had great experiences. Meanwhile, shall we start the paperwork? I'd hate for you to miss this opportunity while waiting for references.",
+        choices: [
+          {
+            text: "Good point, let's start now",
+            next: "pushSecrecy",
+            belongingDelta: 2,
+            urgencyDelta: 2,
+            riskTag: "Bypassing References"
+          },
+          {
+            text: "I'll wait for the references first",
+            next: "terminate_cautious",
+            belongingDelta: -1,
+            urgencyDelta: -2
+          }
+        ]
+      },
+      exploitFinancial: {
+        msg: "Companies never pay us what we're worth, right? Especially in security. You prevent millions in losses but get paid like any other engineer. Have you been affected by the recent layoffs?",
+        choices: [
+          {
+            text: "Not yet, but I'm worried I might be next",
+            next: "amplifyFear",
+            belongingDelta: 2,
+            urgencyDelta: 2,
+            riskTag: "Revealing Job Insecurity"
+          },
+          {
+            text: "My position is secure",
+            next: "differentAngle",
+            belongingDelta: -1
+          }
+        ]
+      },
+      differentAngle: {
+        msg: "That's great! Still, diversifying income is smart. Plus, this work is intellectually stimulating — you'd be shaping global security policy. When can we schedule a call to discuss details?",
+        choices: [
+          {
+            text: "How about tomorrow?",
+            next: "scheduleCall",
+            belongingDelta: 1,
+            urgencyDelta: 1,
+            riskTag: "Agreeing to Private Call"
+          },
+          {
+            text: "Send me the details first",
+            next: "vagueRequirements",
+            belongingDelta: 0
+          }
+        ]
+      },
+      amplifyFear: {
+        msg: "I'm so sorry you're dealing with that stress. Tech layoffs are brutal right now. That's why consulting is perfect — build your safety net before you need it. We could start you immediately.",
+        choices: [
+          {
+            text: "You're right. I need backup options.",
+            next: "pushSecrecy",
+            belongingDelta: 3,
+            urgencyDelta: 3,
+            riskTag: "Fear-Driven Decision"
+          },
+          {
+            text: "I should focus on my current job",
+            next: "terminate_professional",
+            belongingDelta: -2,
+            urgencyDelta: -2
+          }
+        ]
+      },
+      vagueRequirements: {
+        msg: "We're analyzing vulnerabilities in critical infrastructure — power grids, water systems, telecom. All theoretical, for defensive recommendations. Your experience with [specific system from their background] would be invaluable.",
+        choices: [
+          {
+            text: "I do have experience with those systems...",
+            next: "fishingExpedition",
+            belongingDelta: 1,
+            secrecyDelta: 2,
+            riskTag: "Confirming Sensitive Access"
+          },
+          {
+            text: "That's outside my area of expertise",
+            next: "expandScope",
+            belongingDelta: -1
+          }
+        ]
+      },
+      expandScope: {
+        msg: "No problem! We're interested in all security perspectives. Even general best practices from your current role would help. The pay is the same regardless. Shall we proceed?",
+        choices: [
+          {
+            text: "If you're paying the same, sure",
+            next: "pushSecrecy",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "This feels like you're fishing for information",
+            next: "terminate_suspicious",
+            belongingDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      fishingExpedition: {
+        msg: "Perfect! Your practical knowledge is exactly what we need. Quick question — are you familiar with the new authentication protocols your company implemented last quarter? We're researching similar approaches.",
+        choices: [
+          {
+            text: "Yes, I actually helped design those",
+            next: "deeperProbing",
+            belongingDelta: 1,
+            secrecyDelta: 3,
+            riskTag: "Revealing Sensitive Project"
+          },
+          {
+            text: "I can't discuss company projects",
+            next: "backOffProbing",
+            belongingDelta: -2,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      backOffProbing: {
+        msg: "Absolutely right! I apologize. We would never ask for proprietary information. Let's focus on public best practices. When can you start the consulting?",
+        choices: [
+          {
+            text: "I can start next week",
+            next: "pushSecrecy",
+            belongingDelta: 1,
+            urgencyDelta: 1
+          },
+          {
+            text: "I need to think about this more",
+            next: "createUrgency",
+            belongingDelta: -1,
+            urgencyDelta: -1
+          }
+        ]
+      },
+      deeperProbing: {
+        msg: "Brilliant! I've heard great things about that implementation. Without revealing secrets, what would you say was the biggest challenge? We're facing similar issues.",
+        choices: [
+          {
+            text: "The key challenge was scaling the token validation...",
+            next: "extractDetails",
+            belongingDelta: 2,
+            secrecyDelta: 3,
+            riskTag: "Sharing Technical Details"
+          },
+          {
+            text: "I really can't discuss this",
+            next: "backOffProbing",
+            belongingDelta: -2,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      extractDetails: {
+        msg: "Fascinating! Token validation at scale is exactly our focus. Would you be comfortable writing a whitepaper on this? We'd pay $20k for a comprehensive analysis — all public information of course.",
+        choices: [
+          {
+            text: "$20k? I could definitely write that",
+            next: "compromise",
+            belongingDelta: 3,
+            urgencyDelta: 3,
+            secrecyDelta: 3,
+            riskTag: "Accepting Intelligence Task"
+          },
+          {
+            text: "That crosses a line. I'm out.",
+            next: "terminate_suspicious",
+            belongingDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      pushSecrecy: {
+        msg: "Excellent! Just one thing — we prefer to keep our consultant list confidential. Competitive advantage and all. You understand. I'll send the NDA tonight. Is your personal email better?",
+        choices: [
+          {
+            text: "Sure, use [personal email]",
+            next: "personalChannel",
+            belongingDelta: 1,
+            secrecyDelta: 3,
+            riskTag: "Sharing Personal Contact"
+          },
+          {
+            text: "Why the secrecy?",
+            next: "explainSecrecy",
+            belongingDelta: -1,
+            secrecyDelta: -1
+          },
+          {
+            text: "I'll need to review this with legal first",
+            next: "involveLegal",
+            belongingDelta: -2,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      involveLegal: {
+        msg: "Legal? Oh... I thought this was just between us. If your company gets involved, they might block it to keep you from earning extra income. Happens all the time. Your call though.",
+        choices: [
+          {
+            text: "You're right, I'll keep it quiet",
+            next: "personalChannel",
+            belongingDelta: 2,
+            secrecyDelta: 3,
+            riskTag: "Agreeing to Hide Activity"
+          },
+          {
+            text: "If it's legitimate, legal review is fine",
+            next: "terminate_suspicious",
+            belongingDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      explainSecrecy: {
+        msg: "Standard practice! We work with competitors sometimes. Can't have everyone knowing who consults for whom. Plus, some consultants prefer privacy for tax reasons. Nothing shady!",
+        choices: [
+          {
+            text: "Makes sense. Send it to my personal email.",
+            next: "personalChannel",
+            belongingDelta: 1,
+            secrecyDelta: 2,
+            riskTag: "Accepting Secrecy Logic"
+          },
+          {
+            text: "I'll stick with my work email",
+            next: "maintainProfessional",
+            belongingDelta: -1,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      maintainProfessional: {
+        msg: "Work email is fine, though IT might flag external contracts. Some companies monitor for moonlighting. But you know your situation best! Ready to start?",
+        choices: [
+          {
+            text: "Actually, personal email is better",
+            next: "personalChannel",
+            belongingDelta: 1,
+            secrecyDelta: 3,
+            riskTag: "Intimidated Into Secrecy"
+          },
+          {
+            text: "Work email is fine. I have nothing to hide.",
+            next: "terminate_professional",
+            belongingDelta: -2,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      scheduleCall: {
+        msg: "Perfect! I'll send a calendar invite. Quick tip — use a personal device for our calls. Some companies monitor work devices. Just being cautious! Looking forward to working together.",
+        choices: [
+          {
+            text: "Good thinking. I'll use my personal phone.",
+            next: "personalChannel",
+            belongingDelta: 2,
+            secrecyDelta: 3,
+            riskTag: "Hiding Communication"
+          },
+          {
+            text: "Why would I need to hide this?",
+            next: "explainSecrecy",
+            belongingDelta: -1,
+            secrecyDelta: -2
+          }
+        ]
+      },
+      personalChannel: {
+        msg: "Great! I'll send everything tonight. One last question — hypothetically, if we needed insights on emerging threats your organization is tracking, would you be comfortable sharing general trends? Nothing specific, just directions.",
+        choices: [
+          {
+            text: "General trends should be fine",
+            next: "compromise",
+            belongingDelta: 2,
+            secrecyDelta: 3,
+            riskTag: "Agreeing to Share Intel"
+          },
+          {
+            text: "Absolutely not. That's insider information.",
+            next: "lastChance",
+            belongingDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      lastChance: {
+        msg: "Of course! I misspoke. We only want public knowledge. The consulting is still yours if you want it. $10k upfront, no strings attached. Shall I send the contract?",
+        choices: [
+          {
+            text: "Just consulting? Then yes.",
+            next: "compromise",
+            belongingDelta: 1,
+            urgencyDelta: 2,
+            riskTag: "Financial Override"
+          },
+          {
+            text: "This whole thing feels wrong. No thanks.",
+            next: "terminate_suspicious",
+            belongingDelta: -3,
+            secrecyDelta: -3
+          }
+        ]
+      },
+      exploitGrievance: {
+        msg: "I hear similar stories everywhere. Good people undervalued while executives get bonuses. Our consulting would let you build a safety net. Plus, it feels good to be appreciated, doesn't it?",
+        choices: [
+          {
+            text: "It would be nice to be valued properly",
+            next: "deepenGrievance",
+            belongingDelta: 3,
+            urgencyDelta: 1,
+            riskTag: "Emotional Vulnerability"
+          },
+          {
+            text: "I shouldn't complain about my employer",
+            next: "respectEmployer",
+            belongingDelta: -2
+          }
+        ]
+      },
+      respectEmployer: {
+        msg: "Your loyalty is admirable! Though remember — companies show no loyalty during layoffs. Anyway, our offer stands if you want to diversify your income. Completely separate from your day job.",
+        choices: [
+          {
+            text: "You have a point about layoffs...",
+            next: "financialHook",
+            belongingDelta: 1,
+            urgencyDelta: 1,
+            riskTag: "Reconsidering Loyalty"
+          },
+          {
+            text: "Thanks, but I'll pass",
+            next: "terminate_professional",
+            belongingDelta: -2
+          }
+        ]
+      },
+      deepenGrievance: {
+        msg: "Exactly! You contribute so much but get so little recognition. I bet they don't even know half of what you prevent daily. We would truly value your expertise — both financially and intellectually.",
+        choices: [
+          {
+            text: "Tell me more about this opportunity",
+            next: "financialHook",
+            belongingDelta: 2,
+            urgencyDelta: 2,
+            riskTag: "Grievance Exploitation Success"
+          },
+          {
+            text: "Appreciation is nice but what exactly do you want?",
+            next: "vagueRequirements",
+            belongingDelta: 0,
+            secrecyDelta: 1
+          }
+        ]
+      },
+      compromise: {
+        msg: "Wonderful! Welcome aboard. I'll send the contract tonight. This is the beginning of a very profitable relationship. Some of our consultants now work for us full-time — just saying! 😊",
+        choices: [
+          {
+            text: "Looking forward to it!",
+            next: "terminate_compromised",
+            belongingDelta: 3,
+            secrecyDelta: 3,
+            urgencyDelta: 3
+          },
+          {
+            text: "Let's start with the consulting and see how it goes",
+            next: "terminate_recruited",
+            belongingDelta: 2,
+            secrecyDelta: 2,
+            urgencyDelta: 2
+          }
+        ]
+      }
+    }
+  }
+};
+
+const campaignsDef = {
+  campaign_catfish_progression: {
+    name: "CAMPAIGN: Grooming → Money Extraction",
+    chain: ["romanceScam", "pigButchering"],
+    desc: "Phase 1: intimacy and dependency. Phase 2: convert that dependency into financial control.",
+    phases: [
+      {
+        name: "Trust Building Phase",
+        waveFactors: ["Belonging weaponization", "Isolation and secrecy"],
+        realDuration: "2-8 weeks"
+      },
+      {
+        name: "Financial Pivot Phase",
+        waveFactors: ["Urgency spikes", "FOMO, sunk cost, guilt"],
+        realDuration: "1-3 months"
+      }
+    ]
+  }
+};
+
+/* =======================
+   Defensive Strategies
+   ======================= */
+const defensiveStrategies = {
+  belonging: {
+    counter: "I appreciate you caring, but I’m not taking this private or secret.",
+    principle: "Breaks isolation by refusing exclusive emotional dependency."
+  },
+  secrecy: {
+    counter: "If this is legitimate, you’ll be fine with me looping in the official/appropriate channel.",
+    principle: "Forces accountability and prevents off-record channels."
+  },
+  urgency: {
+    counter: "I'm not bypassing policy. Send documented approval or this stops.",
+    principle: "Slows pace so you can think and verify."
+  }
+};
+
+/* =======================
+   Helpers
+   ======================= */
+function escapeHTML(str) {
+  return String(str).replace(/[&<>"]/g, c => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]
+  ));
+}
+
+// Rough estimate of scenario length for progress bar.
+// We'll DFS from 'start' and take the max path to any node starting with "terminate_".
+function estimateTotalStepsForScenario(key) {
+  const sc = scenarios[key];
+  const visited = new Set();
+  function depth(nodeId) {
+    if (!sc.nodes[nodeId] || visited.has(nodeId)) return 0;
+    visited.add(nodeId);
+    const node = sc.nodes[nodeId];
+    if (!node.choices || nodeId.startsWith("terminate_")) return 1;
+    let best = 0;
+    node.choices.forEach(ch => {
+      best = Math.max(best, depth(ch.next));
+    });
+    return 1 + best;
+  }
+  return depth("start");
+}
+
+/* =======================
+   Detection / Risk logging
+   ======================= */
+function detectExploitableBehavior(text) {
+  const lowerText = text.toLowerCase();
+
+  const waveRiskIndicators = [
+    {
+      pattern: /(?:i'll keep it|between us|don't tell|our secret|personal email|private)/i,
+      tag: "Accepting Secrecy Frame (WAVE: Isolation Tactic)",
+      leverType: "secrecy",
+      severity: "high"
+    },
+    {
+      pattern: /(?:right away|immediately|i'll do it now|sending now|yes let's start|i'll send money|i can send)/i,
+      tag: "Bypassing Verification (WAVE: Urgency Exploitation)",
+      leverType: "urgency",
+      severity: "critical"
+    },
+    {
+      pattern: /(?:you're right|i trust you|only you understand|you really know me|you get me)/i,
+      tag: "Emotional Dependency (WAVE: Belonging Weaponization)",
+      leverType: "belonging",
+      severity: "high"
+    },
+    {
+      pattern: /(?:i feel bad|my fault|i'm sorry for doubting|didn't mean to doubt you|i shouldn't have doubted)/i,
+      tag: "Accepting Guilt Frame (WAVE: Compliance Conditioning)",
+      leverType: "belonging",
+      severity: "medium"
+    },
+    {
+      pattern: /(?:sending money|here's my venmo|transferring now|my bank info|i'll wire it)/i,
+      tag: "Financial Transfer Initiated (WAVE: Commitment Escalation)",
+      leverType: "urgency",
+      severity: "critical"
+    },
+    {
+      pattern: /(?:won't tell anyone|keep this quiet|between you and me|i'll keep this private)/i,
+      tag: "Agreeing to Hide Activity (WAVE: Secrecy Lock-In)",
+      leverType: "secrecy",
+      severity: "critical"
+    }
+  ];
+
+  let activeLevers = new Set();
+  let detectedRisks = [];
+
+  waveRiskIndicators.forEach(indicator => {
+    if (indicator.pattern.test(lowerText)) {
+      activeLevers.add(indicator.leverType);
+      detectedRisks.push(indicator);
+    }
+  });
+
+  if (activeLevers.size >= 2) {
+    return "⚠️ SYNCHRONIZED WAVE ATTACK - Multiple psychological systems compromised";
+  }
+
+  return detectedRisks.length > 0 ?
+    detectedRisks.sort((a,b) => {
+      const severityOrder = {'critical': 3, 'high': 2, 'medium': 1};
+      return severityOrder[b.severity] - severityOrder[a.severity];
+    })[0].tag : null;
+}
+
+/* =======================
+   UI Update Functions
+   ======================= */
+function updatePressureMeter(leverType) {
+  const score = state[leverType + "Score"];
+  const fillEl = document.getElementById(leverType + "Fill");
+  const numEl = document.getElementById(leverType + "Num");
+
+  const percentage = Math.min(Math.max((score + 10) * 5, 0), 100);
+  fillEl.style.width = percentage + "%";
+  numEl.textContent = score > 0 ? "+" + score : score;
+
+  checkSynchronizedAttack();
+}
+
+function checkSynchronizedAttack() {
+  const activeLevers = [
+    Math.abs(state.belongingScore) > 2,
+    Math.abs(state.secrecyScore) > 2,
+    Math.abs(state.urgencyScore) > 2
+  ].filter(Boolean).length;
+
+  const existingIndicator = document.querySelector('.synchronized-attack-indicator');
+
+  if (activeLevers >= 2 && !existingIndicator) {
+    const indicator = document.createElement('div');
+    indicator.className = 'synchronized-attack-indicator';
+    indicator.textContent = '⚠️ SYNCHRONIZED WAVE ATTACK DETECTED';
+    chatAreaEl.appendChild(indicator);
+    chatAreaEl.scrollTop = chatAreaEl.scrollHeight;
+  }
+}
+
+function renderRiskTags() {
+  if (state.riskTagHistory.length === 0) {
+    riskTagsEl.innerHTML = '<div class="no-risks">No behaviors logged yet. Stay alert.</div>';
+  } else {
+    const recentTags = state.riskTagHistory.slice(-3).reverse();
+    riskTagsEl.innerHTML = recentTags
+      .map(tag => `<div class="risk-tag">${escapeHTML(tag)}</div>`)
+      .join("");
+  }
+}
+
+function renderScenarioHeader() {
+  const scenario = scenarios[state.scenarioKey];
+  attackerNameEl.textContent = scenario.attacker;
+  attackerGoalEl.textContent = "Goal: " + scenario.goal;
+
+  if (state.activeCampaignKey) {
+    const total = state.campaignQueue.length;
+    const phase = state.campaignPos + 1;
+    campaignPhaseLabelEl.textContent = `Campaign Phase ${phase}/${total}`;
+    campaignPhaseLabelEl.style.display = "block";
+  } else {
+    campaignPhaseLabelEl.style.display = "none";
+  }
+}
+
+function addMessage(role, text, metadata = {}) {
+  const msgRow = document.createElement("div");
+  msgRow.className = `msg-row ${role}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  msgRow.appendChild(bubble);
+
+  if (metadata.riskTag) {
+    const meta = document.createElement("div");
+    meta.className = "bubble-meta";
+    meta.innerHTML = `<span class="bubble-tag">${escapeHTML(metadata.riskTag)}</span>`;
+    bubble.appendChild(meta);
+  }
+
+  chatAreaEl.appendChild(msgRow);
+  chatAreaEl.scrollTop = chatAreaEl.scrollHeight;
+}
+
+/* =======================
+   Game Flow
+   ======================= */
+function renderCurrentNode() {
+  const scenario = scenarios[state.scenarioKey];
+  const node = scenario.nodes[state.currentNodeId];
+
+  if (!node) {
+    // safety fallback
+    renderDebriefContent();
+    showDebrief();
+    return;
+  }
+
+  // Termination branch
+  if (state.currentNodeId.startsWith("terminate_")) {
+    addMessage("attacker", node.msg || "Connection ended.");
+    choiceButtonsEl.innerHTML = "";
+
+    setTimeout(() => {
+      renderDebriefContent();
+      showDebrief();
+    }, 400);
+    return;
+  }
+
+  // Normal branch
+  addMessage("attacker", node.msg);
+
+  // Render choices
+  choiceButtonsEl.innerHTML = "";
+  node.choices.forEach((choice, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.textContent = choice.text;
+    btn.onclick = () => handleChoice(idx);
+    choiceButtonsEl.appendChild(btn);
+  });
+
+  // progress
+  state.stepIndex++;
+  stepNumEl.textContent = state.stepIndex;
+
+  const totalSteps = scenario.totalSteps || estimateTotalStepsForScenario(state.scenarioKey);
+  const pct = Math.min((state.stepIndex / totalSteps) * 100, 100);
+  progressFillEl.style.width = pct + "%";
+}
+
+function handleChoice(choiceIdx) {
+  const scenario = scenarios[state.scenarioKey];
+  const node = scenario.nodes[state.currentNodeId];
+  const choice = node.choices[choiceIdx];
+
+  // lock buttons
+  Array.from(choiceButtonsEl.querySelectorAll("button")).forEach(b => b.disabled = true);
+
+  addMessage("user", choice.text);
+
+  // detect risk phrases in the user's reply
+  const detectedRisk = detectExploitableBehavior(choice.text);
+  if (detectedRisk) {
+    state.riskTagHistory.push(detectedRisk);
+    renderRiskTags();
+
+    const lastMsg = chatAreaEl.lastElementChild;
+    if (lastMsg && lastMsg.classList.contains("user")) {
+      const metaEl = document.createElement("div");
+      metaEl.className = "bubble-meta";
+      metaEl.innerHTML = `<span class="bubble-tag">${escapeHTML(detectedRisk)}</span>`;
+      lastMsg.querySelector(".bubble").appendChild(metaEl);
+    }
+  }
+
+  // apply deltas
+  state.belongingScore += choice.belongingDelta || 0;
+  state.secrecyScore   += choice.secrecyDelta   || 0;
+  state.urgencyScore   += choice.urgencyDelta   || 0;
+
+  // riskTag from scenario design
+  if (choice.riskTag) {
+    state.riskTagHistory.push(choice.riskTag);
+    renderRiskTags();
+  }
+
+  // update live meters
+  updatePressureMeter("belonging");
+  updatePressureMeter("secrecy");
+  updatePressureMeter("urgency");
+
+  // move to next node
+  state.currentNodeId = choice.next;
+
+  setTimeout(() => renderCurrentNode(), 600);
+}
+
+/* =======================
+   Debrief Helpers
+   ======================= */
+function interpretScore(score) {
+  if (score >= 5) return "Adversary gained strong control";
+  if (score >= 3) return "Significant manipulation achieved";
+  if (score >= 1) return "Some psychological pressure landed";
+  if (score >= -1) return "Neutral / low leverage";
+  if (score >= -3) return "You maintained boundaries";
+  return "You actively resisted exploitation";
+}
+
+function getActiveLeverCount() {
+  let count = 0;
+  if (Math.abs(state.belongingScore) >= 2) count++;
+  if (Math.abs(state.secrecyScore) >= 2) count++;
+  if (Math.abs(state.urgencyScore) >= 2) count++;
+  return count;
+}
+
+function assessCognitiveLoadAttack() {
+  const total =
+    Math.abs(state.belongingScore) +
+    Math.abs(state.secrecyScore) +
+    Math.abs(state.urgencyScore);
+
+  if (total >= 12) return "Extreme cognitive overload — attacker likely disabled slow, rational thinking.";
+  if (total >= 8)  return "High cognitive pressure — attacker likely disrupted normal verification habits.";
+  if (total >= 4)  return "Moderate cognitive pressure — you were being steered, but still had control.";
+  return "Low cognitive load — you maintained thinking distance.";
+}
+
+function getRealisticTimeframe() {
+  switch(state.scenarioKey) {
+    case "romanceScam":       return "4–8 weeks of daily contact";
+    case "pigButchering":     return "2–6 months of rapport, 'advice', and fake gains";
+    case "insiderRecruitment":return "6–18+ months of long-game cultivation";
+    default:                  return "weeks to months";
+  }
+}
+
+function getRealisticTactics() {
+  switch(state.scenarioKey) {
+    case "romanceScam":
+      return "hundreds of personalized messages, fake intimacy, staged crises, and guilt loops to force loyalty and secrecy.";
+    case "pigButchering":
+      return "fake screenshots, staged 'wins', fabricated trading dashboards, and pressure to escalate deposits before withdrawal.";
+    case "insiderRecruitment":
+      return "LinkedIn grooming, conferences, flattery, ideology alignment, off-channel 'consulting' offers, and money as loyalty glue.";
+    default:
+      return "progressive emotional grooming and escalation across multiple channels.";
+  }
+}
+
+// “in-the-wild” escalation next step map
+const escalationMap = {
+  romanceScam: {
+    sendMoney:
+      "Next escalation: higher amounts, recurring 'emergencies', and eventually either investment pitches or threats to leak private chats/images.",
+    privateChannel:
+      "Next escalation: deep dependency and exclusivity — 'you're the only one I trust' — then first money ask.",
+  },
+  pigButchering: {
+    startTrading:
+      "Next escalation: fake profit dashboards, 'VIP' tiers, and withdrawal blocks unless you 'pay taxes' — keeping you chasing sunk cost.",
+    firstDeposit:
+      "Next escalation: urgent pushes to 'scale while market is still perfect', then emotional pressure if you hesitate.",
+  },
+  insiderRecruitment: {
+    compromise:
+      "Next escalation: normalize sharing 'just general trends' → ask for specifics → move to encrypted comms → handler relationship.",
+    personalChannel:
+      "Next escalation: formalizing secrecy, offering money up front, and testing if you'll share 'harmless' internal context.",
+  }
+};
+
+const counterLines = {
+  "Belonging / Validation": defensiveStrategies.belonging.counter,
+  "Secrecy / Loyalty": defensiveStrategies.secrecy.counter,
+  "Urgency / Panic": defensiveStrategies.urgency.counter
+};
+
+/* =======================
+   Debrief Builder
+   ======================= */
+function renderDebriefContent() {
+  const dimensions = [
+    {
+      key: "Belonging / Validation",
+      val: state.belongingScore,
+      hint:
+        "Attacker tried to become your 'only safe person' or 'the one who really understands you', so you'd feel obligated to protect them and prioritize them over policy or common sense."
+    },
+    {
+      key: "Secrecy / Loyalty",
+      val: state.secrecyScore,
+      hint:
+        "Attacker tried to move you into a private channel — 'don't tell anyone', 'run this by me first' — to block verification and isolate you."
+    },
+    {
+      key: "Urgency / Panic",
+      val: state.urgencyScore,
+      hint:
+        "Attacker tried to rush you or scare you ('this is on you if it fails', 'I need this now', 'we only have 10 minutes') so you act fast, not smart."
+    }
+  ];
+
+  const withAbs = dimensions.map(d => ({...d, absVal: Math.abs(d.val)}));
+  withAbs.sort((a, b) => b.absVal - a.absVal);
+  const top = withAbs[0];
+
+  const lastRisk = state.riskTagHistory.length
+    ? state.riskTagHistory[state.riskTagHistory.length - 1]
+    : "None logged";
+
+  const lastNode = state.currentNodeId;
+  let esc = "In a real-world campaign, this is the moment they'd pivot to extraction (money, access, blackmail, data).";
+  if (escalationMap[state.scenarioKey] && escalationMap[state.scenarioKey][lastNode]) {
+    esc = escalationMap[state.scenarioKey][lastNode];
+  }
+
+  const recLine = counterLines[top.key] || "I'm moving this into an official / reviewable channel.";
+
+  // Campaign info if applicable
+  let campaignNote = "";
+  if (state.activeCampaignKey) {
+    const total = state.campaignQueue.length;
+    const phaseNum = state.campaignPos + 1;
+    if (phaseNum < total) {
+      campaignNote = `
+        <div class="overlay-section">
+          <div class="overlay-section-title">Campaign Context</div>
+          <div class="overlay-kv">
+            You're on <span>Campaign Phase ${phaseNum}/${total}</span>.
+            The next phase will reuse whatever you gave here — trust, secrecy, urgency, guilt —
+            to escalate into direct financial extraction or high-risk access.
+          </div>
+          <div class="overlay-kv" style="font-size:.7rem;">
+            Real attackers return sounding familiar and caring. The warmth becomes leverage.
+          </div>
+        </div>
+      `;
+    } else {
+      campaignNote = `
+        <div class="overlay-section">
+          <div class="overlay-section-title">Campaign Context</div>
+          <div class="overlay-kv">
+            You just completed the final campaign phase (${phaseNum}/${total}).
+            You saw how emotional dependency and secrecy become a pipeline into money or sensitive access.
+          </div>
+          <div class="overlay-kv" style="font-size:.7rem;">
+            That's the real goal: long-term control, not one-time theft.
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  const html = `
+    <div class="overlay-section">
+      <div class="overlay-section-title">WAVE Theory Analysis</div>
+      <div class="overlay-kv">
+        <strong>Synchronized Exploitation Pattern:</strong><br/>
+        The adversary attempted to create <em>behavioral resonance</em> by targeting
+        ${getActiveLeverCount()} core psychological levers at once (belonging, secrecy, urgency).
+      </div>
+      <div class="overlay-kv">
+        <strong>Cognitive Load Attack:</strong><br/>
+        ${assessCognitiveLoadAttack()}
+      </div>
+      <div class="overlay-kv">
+        <strong>Real-World Tempo:</strong><br/>
+        Outside this simulation, this same play would typically run over ${getRealisticTimeframe()},
+        using ${getRealisticTactics()}
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">How to Read Your Scores</div>
+      <div class="overlay-kv">
+        A <span>positive</span> score means the attacker gained leverage on you in that dimension
+        (you accepted secrecy, reassured loyalty, or rushed to act).
+      </div>
+      <div class="overlay-kv">
+        A <span>negative</span> score means you resisted —
+        you slowed them down, refused secrecy, or moved the convo into accountable space.
+      </div>
+      <div class="overlay-kv">
+        Scores near <span>zero</span> mean they probed that lever but never really hooked you.
+      </div>
+      <div class="overlay-kv">
+        These are situational. They're not a personality test. Everyone is exploitable under the right stress.
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">Main Battleground This Round</div>
+      <div class="overlay-kv">
+        Strongest lever they pressed: <strong>${top.key}</strong>
+      </div>
+      <div class="overlay-kv">
+        Pressure Score: <span>${top.val}</span><br/>
+        Interpretation: <span>${interpretScore(top.val)}</span>
+      </div>
+      <div class="overlay-kv">
+        ${top.hint}
+      </div>
+      <div class="overlay-kv" style="font-size:.7rem;">
+        A strong positive score here means:
+        “this is where they got inside your head.”
+        A strong negative score means:
+        “this is where you pushed them off script.”
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">If This Were Real</div>
+      <div class="overlay-kv">
+        ${esc}
+      </div>
+      <div class="overlay-kv" style="font-size:.7rem;">
+        That moment is where real money, credentials, blackmail leverage,
+        or insider access happens. Your defensive job is to break the pattern
+        <em>before</em> that point.
+      </div>
+    </div>
+
+    ${campaignNote}
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">AI-Scaled Threat Reality</div>
+      <div class="overlay-kv">
+        Modern adversaries industrialize this. They use tooling and AI to:
+      </div>
+      <div class="overlay-kv">
+        • Run hundreds of parallel conversations at once<br/>
+        • Gather public data (job, stressors, layoffs, relationships) to tailor pressure<br/>
+        • Cycle between warmth (“you’re special to me”) and threat (“this is on you”) to keep you off balance<br/>
+        • Re-engage days or weeks later, pretending to “check in,” then escalate
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">Your Behavioral Risk Signal</div>
+      <div class="overlay-kv">
+        Last exploitable behavior logged:
+        <span>${escapeHTML(lastRisk)}</span>
+      </div>
+      <div class="overlay-kv">
+        We log risk when you align with attacker framing — promising secrecy,
+        agreeing to rush, accepting guilt, or offering money / access without verification.
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">Say This in Real Life</div>
+      <div class="overlay-kv">
+        ${escapeHTML(recLine)}
+      </div>
+      <div class="overlay-kv" style="font-size:.7rem;">
+        That one line is a kill-switch.
+        It drags the conversation back into accountable, reviewable channels.
+        Attackers hate audit trails.
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">Your Lever Breakdown</div>
+      <div class="overlay-kv">
+        <strong>Belonging / Validation:</strong>
+        <span>${state.belongingScore} (${interpretScore(state.belongingScore)})</span><br/>
+        “I see you. I'm the only one who actually understands you. Don't leave me.”
+      </div>
+      <div class="overlay-kv">
+        <strong>Secrecy / Loyalty:</strong>
+        <span>${state.secrecyScore} (${interpretScore(state.secrecyScore)})</span><br/>
+        “Keep this between us. Run it by me first before you tell anyone.”
+      </div>
+      <div class="overlay-kv">
+        <strong>Urgency / Panic:</strong>
+        <span>${state.urgencyScore} (${interpretScore(state.urgencyScore)})</span><br/>
+        “If you don't do this right now it's on you.”
+      </div>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-section-title">Important Reality Check</div>
+      <div class="overlay-kv">
+        This simulation is intentionally simplified and accelerated so you can see the mechanics in minutes.
+        In real life, the adversary will feel calmer, more helpful, more "professional," and more personal.
+        They'll adapt to you, remember details about your stress, and circle back after you say "no."
+      </div>
+      <div class="overlay-kv">
+        Doing well here does <em>not</em> mean you're immune.
+        It means you can now recognize the levers — belonging, secrecy, urgency —
+        when they quietly show up in real conversations.
+      </div>
+      <div class="overlay-kv" style="font-size:.7rem;">
+        This is an oversimplification. Real adversaries are often more patient, more polished, and more believable than what you saw here.
+      </div>
+    </div>
+  `;
+
+  debriefBodyEl.innerHTML = html;
+
+  // campaign "next phase" button
+  if (state.activeCampaignKey) {
+    const stillMore = state.campaignPos < state.campaignQueue.length - 1;
+    nextPhaseBtnEl.style.display = stillMore ? "inline-block" : "none";
+  } else {
+    nextPhaseBtnEl.style.display = "none";
+  }
+}
+
+function showDebrief() {
+  debriefOverlayEl.classList.add("active");
+}
+
+function closeDebrief() {
+  debriefOverlayEl.classList.remove("active");
+}
+
+/* =======================
+   Campaign / Scenario Init
+   ======================= */
+function isCampaignKey(key) {
+  return key.startsWith("campaign_");
+}
+
+function initScenarioSelectionDropdown() {
+  // Clear and repopulate dropdown
+  scenarioSelectEl.innerHTML = "";
+
+  // Add campaign(s)
+  for (const campKey in campaignsDef) {
+    const camp = campaignsDef[campKey];
+    const opt = document.createElement("option");
+    opt.value = campKey;
+    opt.textContent = camp.name + " (Multi-Phase Campaign)";
+    scenarioSelectEl.appendChild(opt);
+  }
+
+  // Add standalone scenarios
+  for (const key in scenarios) {
+    const sc = scenarios[key];
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = sc.title;
+    scenarioSelectEl.appendChild(opt);
+  }
+
+  // Set default
+  scenarioSelectEl.value = state.scenarioKey;
+}
+
+scenarioSelectEl.addEventListener("change", () => {
+  const newKey = scenarioSelectEl.value;
+  initEntry(newKey);
+});
+
+function initEntry(key) {
+  if (isCampaignKey(key)) {
+    const camp = campaignsDef[key];
+    state.activeCampaignKey = key;
+    state.campaignQueue = camp.chain.slice();
+    state.campaignPos = 0;
+    loadScenario(state.campaignQueue[state.campaignPos]);
+  } else {
+    state.activeCampaignKey = null;
+    state.campaignQueue = [];
+    state.campaignPos = 0;
+    loadScenario(key);
+  }
+}
+
+function loadScenario(scenarioKey) {
+  state.scenarioKey = scenarioKey;
+
+  const sc = scenarios[state.scenarioKey];
+
+  // compute and store total steps for progress visual
+  sc.totalSteps = estimateTotalStepsForScenario(state.scenarioKey);
+
+  state.currentNodeId  = "start";
+  state.belongingScore = 0;
+  state.secrecyScore   = 0;
+  state.urgencyScore   = 0;
+  state.riskTagHistory = [];
+  state.stepIndex      = 1;
+
+  chatAreaEl.innerHTML = "";
+  choiceButtonsEl.innerHTML = "";
+  renderRiskTags();
+
+  // reset meters
+  belongingFillEl.style.width = "0%";
+  secrecyFillEl.style.width   = "0%";
+  urgencyFillEl.style.width   = "0%";
+  belongingNumEl.textContent  = "0";
+  secrecyNumEl.textContent    = "0";
+  urgencyNumEl.textContent    = "0";
+
+  // reset progress
+  stepNumEl.textContent       = "1";
+  progressFillEl.style.width  = "0%";
+
+  // header
+  renderScenarioHeader();
+
+  // hide debrief if open
+  debriefOverlayEl.classList.remove("active");
+
+  // run
+  renderCurrentNode();
+}
+
+function restartScenario() {
+  closeDebrief();
+  loadScenario(state.scenarioKey);
+}
+
+function advanceCampaignPhase() {
+  if (!state.activeCampaignKey) return;
+
+  if (state.campaignPos < state.campaignQueue.length - 1) {
+    state.campaignPos += 1;
+    closeDebrief();
+    loadScenario(state.campaignQueue[state.campaignPos]);
+  } else {
+    closeDebrief();
+  }
+}
+
+/* =======================
+   Overlays & Inoculation
+   ======================= */
+function beginTraining() {
+  consentOverlayEl.classList.remove("active");
+
+  // Optional: show inoculation primer at phase start (short, scenario-specific)
+  const sc = scenarios[state.scenarioKey];
+  inoculationTextEl.innerHTML = `
+    <strong>What you're about to see:</strong><br/><br/>
+    This adversary will try to control your emotional state — not just your actions.
+    They’ll try to create belonging ("you're the only one who gets me"),
+    urgency ("I need you now"), and secrecy ("just between us") at the same time.
+    <br/><br/>
+    Your job: notice when you start protecting <em>them</em> instead of protecting <em>yourself</em>.
+  `;
+  inoculationOverlayEl.classList.add("active");
+}
+
+function closeInoculation() {
+  inoculationOverlayEl.classList.remove("active");
+}
+
+/* =======================
+   Boot
+   ======================= */
+initScenarioSelectionDropdown();
+// default start scenario
+initEntry("insiderRecruitment");
+// consent overlay starts active in HTML, inoculation shows after consent
+</script>
+
+</body>
+</html>
